@@ -1,71 +1,75 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views import View
 from student_app.models import Student
 from django.http import HttpResponseRedirect
+from django.views.generic import CreateView,ListView,DetailView,UpdateView
+from student_app.forms import StudentForm
+
+
+
+# from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
 
-def student_list(request):
-  students=Student.objects.all()
+class StudentList(ListView):
+  model=Student
+  template_name="student_list.html"
+  context_object_name="students"
 
-  return render(
-    request,
-    "student_list.html",
-    {'students':students},
-  )
-
-
-
-def student_detail(request,pk):
-  student=Student.objects.get(pk=pk)
-  return render(
-    request,
-    "student_detail.html",
-    {'student':student}
-  )
-
-
-
-def update_student(request,pk):
-  if request.method=='GET':
-    student=Student.objects.get(pk=pk)
-    return render(
-      request,
-      'update_student.html',
-      {'student':student},
-    )
-  
-  else:
-    student=Student.objects.get(pk=pk)
-    student.name=request.POST['name']
-    student.age=request.POST['age']
-    student.email=request.POST['email']
-    student.save()
-    return HttpResponseRedirect("/")
+  def get_queryset(self):
+     queryset=Student.objects.all()
+     return queryset
   
 
 
-def delete_student(request,pk):
-  student=Student.objects.get(pk=pk)
-  student.delete()
-  return HttpResponseRedirect("/")
+
+class StudentDetail(DetailView):
+   model=Student
+   template_name="student_detail.html"
+   context_object_name="student"
+
+   def get_queryset(self):
+      queryset=Student.objects.filter(pk=self.kwargs["pk"])
+      return queryset
+       
+
+class Update_Student(UpdateView):
+   model=Student
+   template_name="Add_student.html"
+   form_class=StudentForm
+
+   def get_success_url(self):
+      student=self.get_object()
+      return reverse_lazy('student-list')
+
+   
+
+class Delete_Student(View):
+   def get(self,request,pk):
+      student=Student.objects.get(pk=pk)
+      student.delete()
+      return redirect('student-list')
+      
 
 
 
+class AddStudent(CreateView):
+  model=Student
+  template_name="add_student.html"
+  form_class=StudentForm
 
 
-def add_student(request):
-    if request.method == 'GET':
-        return render(request, "add_student.html")
-    else:
-        # Create a single student with all fields
-        Student.objects.create(
-            name=request.POST['name'],
-            age=request.POST['age'],
-            email=request.POST['email'],
-            image=request.FILES.get('image')  # Using get() to handle case when no image is uploaded
-        )
-        return HttpResponseRedirect("/")
+  def form_valid(self,form):
+        form.instance.author=self.request.user
+        return super().form_valid(form)
+
+  def get_success_url(self):
+        return '/'
+
   
+
+
   
   
 

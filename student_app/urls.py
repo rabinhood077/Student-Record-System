@@ -4,12 +4,12 @@ from student_app import views
 
 
 urlpatterns = [
-  path('', views.student_list, name='student-list'),
-  path('student_detail/<int:pk>/', views.student_detail, name='student-detail'),
-  path('delete-student/<int:pk>/', views.delete_student, name='delete-student'),
-  path('delete-student/<int:pk>/', views.delete_student, name='delete-student'),
-  path('update-student/<int:pk>/', views.update_student, name='update-student'),
-  path('add-student/', views.add_student, name='add-student'),
+  path('', views.StudentList.as_view(), name='student-list'),
+  path('student_detail/<int:pk>/', views.StudentDetail.as_view(), name='student-detail'),
+  path('delete-student/<int:pk>/', views.Delete_Student.as_view(), name='delete-student'),
+ 
+  path('update-student/<int:pk>/', views.Update_Student.as_view(), name='update-student'),
+  path('add-student/', views.AddStudent.as_view(), name='add-student'),
   
     
     
